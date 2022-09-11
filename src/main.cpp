@@ -1,30 +1,29 @@
 #include "main.h"
 
-SoftwareSerial mySerial(17, 16);
-const char nmea_start = 0x24;
-const char carriage_return = 0x0D;
-const char line_feed = 0x0A;
-char sentence[79];
-int8_t i = 0;
-
 void setup() {
     Serial.begin(115200);
-    mySerial.begin(9600);
+    xTaskCreatePinnedToCore(taskGPS, "taskGPS", 10000, NULL, 1, &taskHandlerGPS, 0);
 }
 
 void loop() {
-    if (mySerial.available()) {
-        char c = mySerial.read();
-        if (c == nmea_start) {
-            i = 0;
-        } else if (c == carriage_return) {
-            i = 0;
-        } else if (c == line_feed) {
-            i = 0;
-            Serial.println(sentence);
+    Serial.println(latitude, 6);
+    sleep(1);
+}
+
+void taskGPS(void *parameter) {
+    SoftwareSerial serialGPS(rxPinGPS, txPinGPS);
+    serialGPS.begin(baudGPS);
+    while (true) {
+        if (serialGPS.available() > 0) {
+            while (serialGPS.available() > 0) {
+                if (parserGPS.encode(serialGPS.read())) {
+                    if (parserGPS.location.isValid() && parserGPS.location.isUpdated()) {
+                        latitude = parserGPS.location.lat();
+                    }
+                }
+            }
         } else {
-            sentence[i] = c;
-            i++;
+            vTaskDelay(1 / portTICK_PERIOD_MS);
         }
     }
 }
