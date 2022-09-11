@@ -26,32 +26,32 @@ const bool FALSE = false;
 // GPS module serial reading task function.
 void taskGPS(void *pvParameters);
 
-// GPS data dumping task function.
-void taskGPSDump(void *pvParameters);
+// Data dumping task function.
+void taskDump(void *pvParameters);
 
 // Task name for GPS module serial reading task
 const char *NAME_TASK_GPS = "taskGPS";
 
-// Task name for GPS data dumping task
-const char *NAME_TASK_GPS_DUMP = "taskGPSDump";
+// Task name for data dumping task
+const char *NAME_TASK_DUMP = "taskDump";
 
 // Stack size for GPS module serial reading task
 const uint32_t STACK_SIZE_TASK_GPS = 10000;
 
-// Stack size for GPS data dumping task
-const uint32_t STACK_SIZE_TASK_GPS_DUMP = 10000;
+// Stack size for data dumping task
+const uint32_t STACK_SIZE_TASK_DUMP = 10000;
 
 // Priority for GPS module serial reading task
 const UBaseType_t PRIORITY_TASK_GPS = 1;
 
 // Priority for GPS data dumping task
-const UBaseType_t PRIORITY_TASK_GPS_DUMP = 2;
+const UBaseType_t PRIORITY_TASK_DUMP = 2;
 
 // GPS module task handler.
 TaskHandle_t taskHandlerGPS;
 
-// GPS module dump task handler.
-TaskHandle_t taskHandlerGPSDump;
+// Dump task handler.
+TaskHandle_t taskHandlerDump;
 
 // Use 0th core for sensing.
 const BaseType_t CORE_SENSE = 0;
@@ -62,8 +62,8 @@ const BaseType_t CORE_INTERACT = 1;
 // Delay for GPS module serial reading task
 const uint32_t DELAY_TASK_GPS = 1;
 
-// Delay for GPS data dumping task
-const uint32_t DELAY_TASK_GPS_DUMP = 1000;
+// Delay for data dumping task
+const uint32_t DELAY_TASK_DUMP = 1000;
 
 /*
  * Device hardware, input and output definitions.

@@ -11,13 +11,13 @@ void setup() {
                             &taskHandlerGPS,
                             CORE_SENSE);
 
-    // Start GPS data dumping task.
-    xTaskCreatePinnedToCore(taskGPSDump,
-                            NAME_TASK_GPS_DUMP,
-                            STACK_SIZE_TASK_GPS_DUMP,
+    // Start data dumping task.
+    xTaskCreatePinnedToCore(taskDump,
+                            NAME_TASK_DUMP,
+                            STACK_SIZE_TASK_DUMP,
                             NULL,
-                            PRIORITY_TASK_GPS_DUMP,
-                            &taskHandlerGPSDump,
+                            PRIORITY_TASK_DUMP,
+                            &taskHandlerDump,
                             CORE_INTERACT);
 }
 
@@ -42,7 +42,7 @@ void taskGPS(void *pvParameters) {
     vTaskDelete(taskHandlerGPS);
 }
 
-void taskGPSDump(void *pvParameters) {
+void taskDump(void *pvParameters) {
     Serial.begin(BAUD_SERIAL);
     for (;;) {
         Serial.print("DATE ");
@@ -72,7 +72,7 @@ void taskGPSDump(void *pvParameters) {
         Serial.print(" HDOP ");
         Serial.print(gps.hdop(), 1);
         Serial.println();
-        vTaskDelay(DELAY_TASK_GPS_DUMP / portTICK_PERIOD_MS);
+        vTaskDelay(DELAY_TASK_DUMP / portTICK_PERIOD_MS);
     }
-    vTaskDelete(taskHandlerGPSDump);
+    vTaskDelete(taskHandlerDump);
 }
