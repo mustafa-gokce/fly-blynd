@@ -1,33 +1,95 @@
-#define True true
-#define TRUE true
-#define False false
-#define FALSE false
-
 #include "Arduino.h"
 #include "SoftwareSerial.h"
 #include "TinyGPS++.h"
+#include "RE_GPS.h"
 
-const uint8_t rxPinGPS = 17;
-const uint8_t txPinGPS = 16;
-const uint32_t baudGPS = 9600;
+/*
+ * General purpose definitions.
+ */
 
-static volatile uint16_t year;
-static volatile uint8_t month;
-static volatile uint8_t day;
-static volatile uint8_t hour;
-static volatile uint8_t minute;
-static volatile uint8_t second;
-static volatile double latitude;
-static volatile double longitude;
-static volatile double altitude;
-static volatile double speed;
-static volatile double course;
-static volatile uint32_t satellites;
-static volatile double hdop;
+// True is true.
+const bool True = true;
 
-TinyGPSPlus parserGPS;
-SoftwareSerial serialGPS(rxPinGPS, txPinGPS);
-TaskHandle_t taskHandlerGPS;
-TaskHandle_t taskHandlerDumpGPS;
+// TRUE is true.
+const bool TRUE = true;
+
+// False is false.
+const bool False = false;
+
+// FALSE is false.
+const bool FALSE = false;
+
+/*
+ * RTOS related task declarations.
+ */
+
+// GPS module serial reading task function.
 void taskGPS(void *pvParameters);
-void taskDumpGPS(void *pvParameters);
+
+// GPS data dumping task function.
+void taskGPSDump(void *pvParameters);
+
+// Task name for GPS module serial reading task
+const char *NAME_TASK_GPS = "taskGPS";
+
+// Task name for GPS data dumping task
+const char *NAME_TASK_GPS_DUMP = "taskGPSDump";
+
+// Stack size for GPS module serial reading task
+const uint32_t STACK_SIZE_TASK_GPS = 10000;
+
+// Stack size for GPS data dumping task
+const uint32_t STACK_SIZE_TASK_GPS_DUMP = 10000;
+
+// Priority for GPS module serial reading task
+const UBaseType_t PRIORITY_TASK_GPS = 1;
+
+// Priority for GPS data dumping task
+const UBaseType_t PRIORITY_TASK_GPS_DUMP = 2;
+
+// GPS module task handler.
+TaskHandle_t taskHandlerGPS;
+
+// GPS module dump task handler.
+TaskHandle_t taskHandlerGPSDump;
+
+// Use 0th core for sensing.
+const BaseType_t CORE_SENSE = 0;
+
+// Use 1st core for user interaction.
+const BaseType_t CORE_INTERACT = 1;
+
+// Delay for GPS module serial reading task
+const uint32_t DELAY_TASK_GPS = 1;
+
+// Delay for GPS data dumping task
+const uint32_t DELAY_TASK_GPS_DUMP = 1000;
+
+/*
+ * Device hardware, input and output definitions.
+ */
+
+// GPS module receiver pin.
+const uint8_t PIN_GPS_RX = 17;
+
+// GPS module transmitter pin.
+const uint8_t PIN_GPS_TX = 16;
+
+// GPS module baud rate.
+const uint32_t BAUD_GPS = 9600;
+
+// Serial console baud rate.
+const uint32_t BAUD_SERIAL = 115200;
+
+/*
+ * Global object instance declarations.
+ */
+
+// GPS module parser.
+TinyGPSPlus parserGPS;
+
+// GPS module serial connection.
+SoftwareSerial serialGPS(PIN_GPS_RX, PIN_GPS_TX);
+
+// GPS data class instance.
+RE_GPS gps;

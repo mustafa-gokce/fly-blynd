@@ -1,89 +1,78 @@
 #include "main.h"
 
+// Setup application.
 void setup() {
-    xTaskCreatePinnedToCore(taskGPS, "taskGPS", 10000, NULL, 1, &taskHandlerGPS, 0);
-    xTaskCreatePinnedToCore(taskDumpGPS, "taskDumpGPS", 10000, NULL, 1, &taskHandlerDumpGPS, 0);
+    // Start GPS module serial reading task.
+    xTaskCreatePinnedToCore(taskGPS,
+                            NAME_TASK_GPS,
+                            STACK_SIZE_TASK_GPS,
+                            NULL,
+                            PRIORITY_TASK_GPS,
+                            &taskHandlerGPS,
+                            CORE_SENSE);
+
+    // Start GPS data dumping task.
+    xTaskCreatePinnedToCore(taskGPSDump,
+                            NAME_TASK_GPS_DUMP,
+                            STACK_SIZE_TASK_GPS_DUMP,
+                            NULL,
+                            PRIORITY_TASK_GPS_DUMP,
+                            &taskHandlerGPSDump,
+                            CORE_SENSE);
 }
 
+// Empty loop.
 void loop() {
-
+    // Always leave this empty.
 }
 
 void taskGPS(void *pvParameters) {
-    serialGPS.begin(baudGPS);
+    serialGPS.begin(BAUD_GPS);
     for (;;) {
         if (serialGPS.available() > 0) {
             while (serialGPS.available() > 0) {
                 if (parserGPS.encode(serialGPS.read())) {
-                    if (parserGPS.date.isValid() && parserGPS.date.isUpdated()) {
-                        year = parserGPS.date.year();
-                        month = parserGPS.date.month();
-                        day = parserGPS.date.day();
-                    }
-                    if (parserGPS.time.isValid() && parserGPS.time.isUpdated()) {
-                        hour = parserGPS.time.hour();
-                        minute = parserGPS.time.minute();
-                        second = parserGPS.time.second();
-                    }
-                    if (parserGPS.location.isValid() && parserGPS.location.isUpdated()) {
-                        latitude = parserGPS.location.lat();
-                        longitude = parserGPS.location.lng();
-                    }
-                    if (parserGPS.altitude.isValid() && parserGPS.altitude.isUpdated()) {
-                        altitude = parserGPS.altitude.meters();
-                    }
-                    if (parserGPS.speed.isValid() && parserGPS.speed.isUpdated()) {
-                        speed = parserGPS.speed.mps();
-                    }
-                    if (parserGPS.course.isValid() && parserGPS.course.isUpdated()) {
-                        course = parserGPS.course.deg();
-                    }
-                    if (parserGPS.satellites.isValid() && parserGPS.satellites.isUpdated()) {
-                        satellites = parserGPS.satellites.value();
-                    }
-                    if (parserGPS.hdop.isValid() && parserGPS.hdop.isUpdated()) {
-                        hdop = parserGPS.hdop.hdop();
-                    }
+                    gps.update(&parserGPS);
                 }
             }
         } else {
-            vTaskDelay(1 / portTICK_PERIOD_MS);
+            vTaskDelay(DELAY_TASK_GPS / portTICK_PERIOD_MS);
         }
     }
     vTaskDelete(taskHandlerGPS);
 }
 
-void taskDumpGPS(void *pvParameters) {
-    Serial.begin(115200);
+void taskGPSDump(void *pvParameters) {
+    Serial.begin(BAUD_SERIAL);
     for (;;) {
         Serial.print("DATE ");
-        Serial.print(year);
+        Serial.print(gps.date.year());
         Serial.print("/");
-        Serial.print(month);
+        Serial.print(gps.date.month());
         Serial.print("/");
-        Serial.print(day);
+        Serial.print(gps.date.day());
         Serial.print(" TIME ");
-        Serial.print(hour);
+        Serial.print(gps.time.hour());
         Serial.print(":");
-        Serial.print(minute);
+        Serial.print(gps.time.minute());
         Serial.print(":");
-        Serial.print(second);
+        Serial.print(gps.time.second());
         Serial.print(" LOCATION ");
-        Serial.print(latitude, 6);
+        Serial.print(gps.location.latitude(), 6);
         Serial.print(" ");
-        Serial.print(longitude, 6);
+        Serial.print(gps.location.longitude(), 6);
         Serial.print(" ");
-        Serial.print(altitude, 1);
+        Serial.print(gps.location.altitude(), 1);
         Serial.print(" SPEED ");
-        Serial.print(speed, 1);
+        Serial.print(gps.speed(), 1);
         Serial.print(" COURSE ");
-        Serial.print(course, 1);
+        Serial.print(gps.course(), 1);
         Serial.print(" SATELLITES ");
-        Serial.print(satellites);
+        Serial.print(gps.satellites());
         Serial.print(" HDOP ");
-        Serial.print(hdop, 1);
+        Serial.print(gps.hdop(), 1);
         Serial.println();
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
+        vTaskDelay(DELAY_TASK_GPS_DUMP / portTICK_PERIOD_MS);
     }
-    vTaskDelete(taskHandlerDumpGPS);
+    vTaskDelete(taskHandlerGPSDump);
 }
