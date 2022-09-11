@@ -18,7 +18,7 @@ void setup() {
                             NULL,
                             PRIORITY_TASK_GPS_DUMP,
                             &taskHandlerGPSDump,
-                            CORE_SENSE);
+                            CORE_INTERACT);
 }
 
 // Empty loop.
