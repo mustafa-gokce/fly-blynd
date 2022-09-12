@@ -1,11 +1,49 @@
-#include "Arduino.h"
+
 #include "RE_GPS.h"
 
-RE_GPS::RE_GPS() {
+
+void RE_GPS::begin(){
+
+    startTask() ;
+}
+
+void RE_GPS::run() {
+
+    // GPS module serial connection
+    SoftwareSerial serialGPS(PIN_GPS_RX, PIN_GPS_TX);
+    serialGPS.begin(BAUD_GPS);
+
+    for (;;) {
+        if (serialGPS.available() > 0) {
+            while (serialGPS.available() > 0) {
+               if (parserGPS.encode(serialGPS.read())) {
+                    update(&parserGPS);
+                }           
+            }
+        } else {
+            vTaskDelay(1 / portTICK_PERIOD_MS);
+        }
+    }
+     vTaskDelete(taskHandlerGPS);
+}
+
+void RE_GPS::startTaskImpl(void* _this)
+{
+    static_cast<RE_GPS*>(_this)->run();
 
 }
 
-RE_GPS::~RE_GPS() {
+// Setup application.
+void RE_GPS::startTask() {
+    
+    // Start GPS module serial reading task.
+    xTaskCreatePinnedToCore(this->startTaskImpl,
+                            NAME_TASK_GPS,
+                            10000,
+                            this,
+                            PRIORITY_TASK_GPS,
+                            &taskHandlerGPS,
+                            CORE_SENSE);
 
 }
 
