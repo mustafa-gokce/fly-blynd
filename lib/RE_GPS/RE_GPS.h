@@ -3,6 +3,8 @@
 
 #include "Arduino.h"
 #include "TinyGPS++.h"
+#include "SoftwareSerial.h"
+
 
 // Location class contains latitude, longitude and altitude.
 class RE_Location {
@@ -79,9 +81,9 @@ private:
 // GPS class contains data from attached GPS module.
 class RE_GPS {
 public:
-    RE_GPS();
+    RE_GPS() {};
 
-    ~RE_GPS();
+    ~RE_GPS() {};
 
     RE_Date date;
     RE_Time time;
@@ -99,14 +101,51 @@ public:
     // Current HDOP of attached GPS module.
     double hdop() {return _hdop;};
 
-    // Update GPS class with parser.
-    void update(TinyGPSPlus *parserGPS);
+    void begin();
 
 private:
     double _speed;
     double _course;
     uint32_t _satellites;
     double _hdop;
+
+    // GPS module parser.
+    TinyGPSPlus parserGPS;
+
+    // Task name for GPS module serial reading task
+    const char *NAME_TASK_GPS = "taskGPS";
+
+    // Stack size for GPS module serial reading task
+    const uint32_t STACK_SIZE_TASK_GPS = 10000;
+
+    // Priority for GPS module serial reading task
+    const UBaseType_t PRIORITY_TASK_GPS = 1;
+
+    // GPS module task handler.
+    TaskHandle_t taskHandlerGPS = NULL;
+
+    // Use 0th core for sensing.
+    const BaseType_t CORE_SENSE = 0;
+
+    // GPS module receiver pin.
+    const uint8_t PIN_GPS_RX = 17;
+
+    // GPS module transmitter pin.
+    const uint8_t PIN_GPS_TX = 16;
+
+    // GPS module baud rate.
+    const uint32_t BAUD_GPS = 9600;
+
+    void startTask();
+    
+    static void startTaskImpl(void* _this);
+
+    void run();
+
+    // Update GPS class with parser.
+    void update(TinyGPSPlus *parserGPS);
+
+
 };
 
 #endif

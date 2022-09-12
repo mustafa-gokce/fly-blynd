@@ -1,16 +1,12 @@
 #include "main.h"
 
+// GPS data class instance.
+RE_GPS gps;
+
 // Setup application.
 void setup() {
-    // Start GPS module serial reading task.
-    xTaskCreatePinnedToCore(taskGPS,
-                            NAME_TASK_GPS,
-                            STACK_SIZE_TASK_GPS,
-                            NULL,
-                            PRIORITY_TASK_GPS,
-                            &taskHandlerGPS,
-                            CORE_SENSE);
-
+    Serial.begin(BAUD_SERIAL);
+    gps.begin();
     // Start data dumping task.
     xTaskCreatePinnedToCore(taskDump,
                             NAME_TASK_DUMP,
@@ -26,24 +22,8 @@ void loop() {
     // Always leave this empty.
 }
 
-void taskGPS(void *pvParameters) {
-    serialGPS.begin(BAUD_GPS);
-    for (;;) {
-        if (serialGPS.available() > 0) {
-            while (serialGPS.available() > 0) {
-                if (parserGPS.encode(serialGPS.read())) {
-                    gps.update(&parserGPS);
-                }
-            }
-        } else {
-            vTaskDelay(DELAY_TASK_GPS / portTICK_PERIOD_MS);
-        }
-    }
-    vTaskDelete(taskHandlerGPS);
-}
 
 void taskDump(void *pvParameters) {
-    Serial.begin(BAUD_SERIAL);
     for (;;) {
         Serial.print("DATE ");
         Serial.print(gps.date.year());
