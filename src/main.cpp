@@ -1,6 +1,6 @@
 #include "main.h"
 
-FlyBlynd::GPS gps; // GPS module instance
+FlyBlynd::GPS::GPS gps; // GPS module instance
 
 // Setup application.
 void setup() {
