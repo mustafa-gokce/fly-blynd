@@ -1,28 +1,48 @@
 #include "main.h"
 
+#include "Arduino.h"
+
+#include "GPS.h"
+
+namespace
+{
+    static const char *DEBUG_TASK_NAME = "debugTask";     // task name for debugging
+    constexpr uint32_t DEBUG_TASK_STACK_SIZE = 10000;     // stack size for debugging task
+    constexpr UBaseType_t DEBUG_TASK_PRIORITY = 2;        // priority for debugging task
+    constexpr BaseType_t DEBUG_TASK_CORE = 1;             // core for debugging task
+    constexpr uint32_t DEBUG_TASK_DELAY = 1000;           // delay for debugging task
+    constexpr uint32_t SERIAL_CONSOLE_BAUD_RATE = 115200; // baud rate for serial console
+    TaskHandle_t debugTaskHandle;                         // task handle for debugging task
+} // namespace
+
 FlyBlynd::GPS::GPS gps; // GPS module instance
 
-// Setup application.
-void setup() {
-    Serial.begin(BAUD_SERIAL);
-    // Start data dumping task.
-    xTaskCreatePinnedToCore(taskDump,
-                            NAME_TASK_DUMP,
-                            STACK_SIZE_TASK_DUMP,
-                            NULL,
-                            PRIORITY_TASK_DUMP,
-                            &taskHandlerDump,
-                            CORE_INTERACT);
+void setup()
+{
+    // start serial console
+    Serial.begin(SERIAL_CONSOLE_BAUD_RATE);
+
+    // start data dumping task
+    xTaskCreatePinnedToCore(debugTask,
+                            DEBUG_TASK_NAME,
+                            DEBUG_TASK_STACK_SIZE,
+                            nullptr,
+                            DEBUG_TASK_PRIORITY,
+                            &debugTaskHandle,
+                            DEBUG_TASK_CORE);
 }
 
-// Empty loop.
-void loop() {
-    // Always leave this empty.
+void loop()
+{
+    // always leave this empty
 }
 
-
-void taskDump(void *pvParameters) {
-    for (;;) {
+void debugTask(void *pvParameters)
+{
+    // loop forever
+    for (;;)
+    {
+        // print system information to serial console
         Serial.print("DATE ");
         Serial.print(gps.getDate().getYear());
         Serial.print("/");
@@ -50,7 +70,11 @@ void taskDump(void *pvParameters) {
         Serial.print(" HDOP ");
         Serial.print(gps.getHDOP(), 1);
         Serial.println();
-        vTaskDelay(DELAY_TASK_DUMP / portTICK_PERIOD_MS);
+
+        // delay for a while
+        vTaskDelay(DEBUG_TASK_DELAY / portTICK_PERIOD_MS);
     }
-    vTaskDelete(taskHandlerDump);
+
+    // delete task if it ever breaks out of loop
+    vTaskDelete(debugTaskHandle);
 }

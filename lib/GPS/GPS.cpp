@@ -12,7 +12,6 @@ namespace FlyBlynd
         constexpr uint8_t GPS_MODULE_RX_PIN = 17;       // GPS module receiver pin
         constexpr uint8_t GPS_MODULE_TX_PIN = 16;       // GPS module transmitter pin
         constexpr uint32_t GPS_MODULE_BAUD_RATE = 9600; // GPS module baud rate
-
     } // namespace
 
     namespace GPS
