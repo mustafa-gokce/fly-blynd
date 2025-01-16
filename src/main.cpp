@@ -42,6 +42,16 @@ void debugTask(void *pvParameters)
     // loop forever
     for (;;)
     {
+        // check serial console is available
+        if (!Serial)
+        {
+            // delay for a while
+            vTaskDelay(DEBUG_TASK_DELAY / portTICK_PERIOD_MS);
+
+            // continue to next iteration
+            continue;
+        }
+
         // print system information to serial console
         Serial.print("DATE ");
         Serial.print(gps.getDate().getYear());
