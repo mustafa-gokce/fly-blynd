@@ -1,12 +1,10 @@
 #include "main.h"
 
-// GPS data class instance.
-RE_GPS gps;
+FlyBlynd::GPS gps; // GPS module instance
 
 // Setup application.
 void setup() {
     Serial.begin(BAUD_SERIAL);
-    gps.begin();
     // Start data dumping task.
     xTaskCreatePinnedToCore(taskDump,
                             NAME_TASK_DUMP,
@@ -26,31 +24,31 @@ void loop() {
 void taskDump(void *pvParameters) {
     for (;;) {
         Serial.print("DATE ");
-        Serial.print(gps.date.year());
+        Serial.print(gps.getDate().getYear());
         Serial.print("/");
-        Serial.print(gps.date.month());
+        Serial.print(gps.getDate().getMonth());
         Serial.print("/");
-        Serial.print(gps.date.day());
+        Serial.print(gps.getDate().getDay());
         Serial.print(" TIME ");
-        Serial.print(gps.time.hour());
+        Serial.print(gps.getTime().getHour());
         Serial.print(":");
-        Serial.print(gps.time.minute());
+        Serial.print(gps.getTime().getMinute());
         Serial.print(":");
-        Serial.print(gps.time.second());
+        Serial.print(gps.getTime().getSecond());
         Serial.print(" LOCATION ");
-        Serial.print(gps.location.latitude(), 6);
+        Serial.print(gps.getLocation().getLatitude(), 6);
         Serial.print(" ");
-        Serial.print(gps.location.longitude(), 6);
+        Serial.print(gps.getLocation().getLongitude(), 6);
         Serial.print(" ");
-        Serial.print(gps.location.altitude(), 1);
+        Serial.print(gps.getLocation().getAltitude(), 1);
         Serial.print(" SPEED ");
-        Serial.print(gps.speed(), 1);
+        Serial.print(gps.getSpeed(), 1);
         Serial.print(" COURSE ");
-        Serial.print(gps.course(), 1);
+        Serial.print(gps.getCourse(), 1);
         Serial.print(" SATELLITES ");
-        Serial.print(gps.satellites());
+        Serial.print(gps.getSatellites());
         Serial.print(" HDOP ");
-        Serial.print(gps.hdop(), 1);
+        Serial.print(gps.getHDOP(), 1);
         Serial.println();
         vTaskDelay(DELAY_TASK_DUMP / portTICK_PERIOD_MS);
     }

@@ -1,5 +1,5 @@
 #include "Arduino.h"
-#include "RE_GPS.h"
+#include "GPS.h"
 
 /*
  * General purpose definitions.
