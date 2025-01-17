@@ -59,6 +59,24 @@ namespace FlyBlynd
             return this->hdop;
         }
 
+        bool GPS::isAvailable() const
+        {
+            // HDOP is invalid
+            if (this->hdop >= 100.0f || this->hdop <= 0.1f)
+            {
+                return false;
+            }
+
+            // date is invalid
+            if (this->date.year < 2000 || this->date.year > 2099)
+            {
+                return false;
+            }
+            
+            // GPS module is available
+            return true;
+        }
+
         void GPS::begin()
         {
             // start GPS module serial reading task

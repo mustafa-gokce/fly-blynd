@@ -59,6 +59,11 @@ namespace FlyBlynd
              */
             double getHDOP() const;
 
+            /*
+             * Check if GPS module is available
+             */
+            bool isAvailable() const;
+
         private:
             /*
              * Begin GPS module
@@ -86,15 +91,15 @@ namespace FlyBlynd
             void update(TinyGPSPlus *parser);
 
         private:
-            Date::Date date;                      // current date
-            Time::Time time;                      // current time
-            Location::Location location;          // current location
-            double speed;                         // current speed in meters per second
-            double course;                        // current course in degrees
-            uint8_t satellites;                   // current number of satellites
-            double hdop;                          // current HDOP
-            TinyGPSPlus gpsParser;                // GPS parser
-            TaskHandle_t gpsTaskHandle = nullptr; // GPS module task handler
+            Date::Date date;             // current date
+            Time::Time time;             // current time
+            Location::Location location; // current location
+            double speed;                // current speed in meters per second
+            double course;               // current course in degrees
+            uint8_t satellites;          // current number of satellites
+            double hdop;                 // current HDOP
+            TinyGPSPlus gpsParser;       // GPS parser
+            TaskHandle_t gpsTaskHandle;  // GPS module task handler
         };
     } // namespace GPS
 } // namespace FlyBlynd
