@@ -47,11 +47,6 @@ namespace FlyBlynd
              */
             void run();
 
-            /*
-             * Update serial console
-             */
-            void update();
-
         private:
             const GPS::GPS &gps;            // GPS module instance
             TaskHandle_t consoleTaskHandle; // serial console task handler
