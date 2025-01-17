@@ -1,7 +1,5 @@
 #include "main.h"
 
-#include "Arduino.h"
-
 #include "Device.h"
 
 FlyBlynd::Device::Device device; // device instance
